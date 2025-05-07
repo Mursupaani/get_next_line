@@ -14,5 +14,9 @@
 
 char	*get_next_line(int fd)
 {
+	char	*ret;
 
+	ret = NULL;
+	(void)fd;
+	return (ret);
 }
