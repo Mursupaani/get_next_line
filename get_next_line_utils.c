@@ -83,3 +83,20 @@ size_t	ft_strlen(const char *s)
 	}
 	return (i);
 }
+
+char	*ft_strchr(const char *s, int c)
+{
+	int	i;
+
+	i = 0;
+	while ((unsigned char)s[i])
+	{
+		if ((unsigned char)s[i] == (unsigned char)c)
+			return ((char *)&s[i]);
+		i++;
+	}
+	if ((unsigned char)s[i] == (unsigned char)c)
+		return ((char *)&s[i]);
+	else
+		return (NULL);
+}

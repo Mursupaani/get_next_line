@@ -15,50 +15,73 @@
 #include <stdio.h>
 //FIXME: Remove this
 
-static int	find_new_line(char *str);
-static void	initialize_left_over(char *left_over);
+static int	find_new_line(char *line, char* left_over);
+// static void	initialize_left_over(char *left_over);
 
 char	*get_next_line(int fd)
 {
 	static char	left_over[BUFFER_SIZE + 1];
 	char		buf[BUFFER_SIZE + 1];
 	char		*line;
+	char		*temp;
+	int			chars_to_trim;
 	ssize_t		bytes_read;
 
 	if (fd == -1)
 		return (NULL);
-	initialize_left_over(left_over);
 	bytes_read = read(fd, buf, BUFFER_SIZE);
 	if (bytes_read == 0 || bytes_read == -1) // FIXME: Check this error handling
 		return (NULL);
 	buf[bytes_read] = '\0';
-	find_new_line(buf);
 	line = ft_strjoin(left_over, buf);
+	chars_to_trim = find_new_line(line, left_over);
+	if (chars_to_trim >= 0)
+	{
+		line[ft_strlen(line) - chars_to_trim] = '\0';
+		return (line);
+	}
+	while (bytes_read && bytes_read != -1)
+	{
+		bytes_read = read(fd, buf, BUFFER_SIZE);
+		if (bytes_read == 0 || bytes_read == -1) // FIXME: Check this error handling
+			return (NULL);
+		buf[bytes_read] = '\0';
+		temp = ft_strjoin(left_over, buf);
+		line = ft_strjoin(line, temp);
+		chars_to_trim = find_new_line(line, left_over);
+		if (chars_to_trim >= 0)
+		{
+			line[ft_strlen(line) - chars_to_trim] = '\0';
+			return (line);
+		}
+	}
 	return (line);
 }
 
-static int	find_new_line(char *str)
+static int	find_new_line(char *line, char* left_over)
 {
-	int	counter;
+	char	*new_line_char;
+	int		chars_to_trim;
 
-	if (!str)
-		return (0);
-	counter = 0;
-	while (*str)
+	new_line_char = ft_strchr(line, '\n');
+	if (!new_line_char)
+		return (-1);
+	else
 	{
-		if (*str == '\n')
-			return (counter);
-		counter++;
-		str++;
+		chars_to_trim = 0;
+		new_line_char++;
+		if (*new_line_char == '\0')
+			*left_over = '\0';
+		else
+		{
+			while (*new_line_char)
+			{
+				*left_over = *new_line_char;
+				new_line_char++;
+				left_over++;
+				chars_to_trim++;
+			}
+		}
 	}
-	return (counter);
-}
-
-static void	initialize_left_over(char *left_over)
-{
-	while (*left_over)
-	{
-		*left_over = '\0';
-		left_over++;
-	}
+	return (chars_to_trim);
 }
