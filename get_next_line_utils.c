@@ -12,64 +12,30 @@
 
 #include "get_next_line.h"
 
-char	*ft_strjoin(char const *s1, char const *s2)
+t_buf	*new_buf_node(char *buf)
 {
-	char	*ret_str;
-	size_t	tot_len;
+	t_buf	*new;
+	int		i;
 
-	if (!s1 || !s2)
+	new = (t_buf *)malloc(sizeof(t_buf));
+	if (!new)
 		return (NULL);
-	tot_len = ft_strlen(s1) + ft_strlen(s2);
-	ret_str = (char *)malloc(sizeof(char) * tot_len + 1);
-	if (!ret_str)
-		return (NULL);
-	ft_strlcpy(ret_str, s1, tot_len + 1);
-	ft_strlcat(ret_str, s2, tot_len + 1);
-	return (ret_str);
-}
-
-size_t	ft_strlcpy(char *dst, const char *src, size_t size)
-{
-	size_t	i;
-	size_t	src_size;
-
-	src_size = 0;
-	while (*(src + src_size))
-		src_size++;
-	if (size == 0)
-		return (src_size);
-	i = 0;
-	while (*(src + i) && i < size - 1)
+	if (!buf)
+		new->buf = NULL;
+	else
 	{
-		*(dst + i) = *(src + i);
-		i++;
-	}
-	*(dst + i) = '\0';
-	return (src_size);
-}
-
-size_t	ft_strlcat(char *dst, const char *src, size_t size)
-{
-	size_t	i;
-	size_t	j;
-	size_t	dst_len;
-	size_t	src_len;
-
-	dst_len = ft_strlen(dst);
-	src_len = ft_strlen(src);
-	i = dst_len;
-	j = 0;
-	if (size > 0)
-	{
-		while (i < size - 1 && src[j])
+		new->buf = (char *)malloc(sizeof(char) * (ft_strlen(buf) + 1));
+		i = 0;
+		while (buf[i])
 		{
-			dst[i++] = src[j++];
+			new->buf[i] = buf[i];
+			i++;
 		}
-		dst[i] = '\0';
+		new->buf[i] = '\0';
 	}
-	if (dst_len >= size)
-		dst_len = size;
-	return (dst_len + src_len);
+
+	new->next = NULL;
+	return (new);
 }
 
 size_t	ft_strlen(const char *s)
@@ -82,21 +48,4 @@ size_t	ft_strlen(const char *s)
 		i++;
 	}
 	return (i);
-}
-
-char	*ft_strchr(const char *s, int c)
-{
-	int	i;
-
-	i = 0;
-	while ((unsigned char)s[i])
-	{
-		if ((unsigned char)s[i] == (unsigned char)c)
-			return ((char *)&s[i]);
-		i++;
-	}
-	if ((unsigned char)s[i] == (unsigned char)c)
-		return ((char *)&s[i]);
-	else
-		return (NULL);
 }
