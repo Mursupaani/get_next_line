@@ -14,15 +14,13 @@ int	main()
 	}
 	line = get_next_line(fd);
 	printf("%s", line);
-	if (!line)
-		return (0);
-	while (line && *line)
+	while (line)
 	{
+		free(line);
 		line = get_next_line(fd);
-		if (line)
-			printf("%s", line);
+		printf("%s", line);
 	}
-		printf("\n");
+	free(line);
 	close(fd);
 	return (0);
 }

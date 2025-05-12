@@ -1,8 +1,9 @@
-This is a test file for get next line.
-I'm going to use this file to test if I'm able to write a function that returns the next line of a given text.
-I'm not sure if I'm able to do this.
-The stakes are too high and my hands are shaking.
-Getting the next line seems like an impossible task but I need to succeed... I MUST succeed. My whole life depends on in. Hell... the fate of the whole world depends on it.
-I can't let others down.
-The only way to redemption is through coding.
-Now... I must start...
+a1
+b2
+c3
+d4
+e5
+f6
+g7
+h8
+h9
