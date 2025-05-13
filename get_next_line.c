@@ -6,60 +6,60 @@
 /*   By: anpollan <anpollan@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 15:25:54 by anpollan          #+#    #+#             */
-/*   Updated: 2025/05/07 15:26:47 by anpollan         ###   ########.fr       */
+/*   Updated: 2025/05/13 15:46:35 by anpollan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-//FIXME: Remove this
-#include <stddef.h>
-#include <stdio.h>
-//FIXME: Remove this
 
-bool	find_new_line(char *buffer);
-char	*fill_next_line(t_buf **head);
+bool	find_new_line(t_buf *buffer);
+char	*get_line(t_buf *head);
 size_t	get_next_line_len(t_buf *head);
-void	add_node_back(t_buf **head, t_buf *node);
+void	create_buf_list(t_buf **buf_head, int fd);
+void	copy_line(t_buf *head, char *next_line);
 
 char	*get_next_line(int fd)
 {
 	static t_buf	*buf_head;
-	char			buffer[BUFFER_SIZE + 1];
-	size_t			bytes_read;
-	char			*line;
-	t_buf			*temp;
+	char			*next_line;
+	ssize_t			test_read;
 
-	if (fd == -1)
+	test_read = read(fd, &test_read, 0);
+	if (fd < 0 || BUFFER_SIZE <= 0 || test_read < 0)
 		return (NULL);
-	bytes_read = 1;
-	while (bytes_read)
-	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (!bytes_read)
-			break ;
-		buffer[bytes_read] = '\0';
-		temp = new_buf_node(buffer);
-		add_node_back(&buf_head, temp);
-		if (find_new_line(temp->buf))
-		{
-			line = fill_next_line(&buf_head);
-			return (line);
-		}
-	}
-	free(buf_head);
-	return (NULL);
+	create_buf_list(&buf_head, fd);
+	if (!buf_head)
+		return (NULL);
+	next_line = get_line(buf_head);
+	store_leftover_to_head(&buf_head);
+	return (next_line);
 }
 
-
-bool	find_new_line(char *buffer)
+void	create_buf_list(t_buf **buf_head, int fd)
 {
-	while (*buffer)
+	char	*buffer;
+	t_buf	*temp;
+	ssize_t	bytes_read;
+	bool	found_new_line;
+
+	found_new_line = find_new_line(*buf_head);
+	while (!found_new_line)
 	{
-		if (*buffer == '\n')
-			return (true);
-		buffer++;
+		buffer = (char *)malloc(BUFFER_SIZE + 1);
+		if (!buffer)
+			return ;
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (!bytes_read)
+		{
+			free(buffer);
+			return ;
+		}
+		buffer[bytes_read] = '\0';
+		temp = new_buf_node(buffer);
+		add_node_back(buf_head, temp);
+		found_new_line = find_new_line(*buf_head);
+		free(buffer);
 	}
-	return (false);
 }
 
 size_t	get_next_line_len(t_buf *head)
@@ -68,6 +68,8 @@ size_t	get_next_line_len(t_buf *head)
 	size_t	next_line_len;
 	size_t	i;
 
+	if (!head)
+		return (0);
 	next_line_len = 0;
 	temp = head;
 	while (temp)
@@ -78,24 +80,38 @@ size_t	get_next_line_len(t_buf *head)
 			next_line_len++;
 			i++;
 		}
+		if (temp->buf[i] == '\n')
+		{
+			next_line_len++;
+			return (next_line_len);
+		}
 		temp = temp->next;
 	}
-	next_line_len++;
-	return(next_line_len);
+	return (next_line_len);
 }
 
-char	*fill_next_line(t_buf **head)
+char	*get_line(t_buf *head)
 {
 	char	*next_line;
-	t_buf	*temp;
-	t_buf	*to_free;
-	size_t	i;
-	size_t	j;
-	
-	next_line = (char *)malloc(sizeof(char) * (get_next_line_len(*head) + 1));
+
+	if (!head)
+		return (NULL);
+	next_line = (char *)malloc(sizeof(char) * (get_next_line_len(head) + 1));
 	if (!next_line)
 		return (NULL);
-	temp = *head;
+	copy_line(head, next_line);
+	return (next_line);
+}
+
+void	copy_line(t_buf *head, char *next_line)
+{
+	t_buf	*temp;
+	size_t	i;
+	size_t	j;
+
+	if (!next_line)
+		return ;
+	temp = head;
 	i = 0;
 	while (temp)
 	{
@@ -103,34 +119,12 @@ char	*fill_next_line(t_buf **head)
 		while (temp->buf[j] && temp->buf[j] != '\n')
 			next_line[i++] = temp->buf[j++];
 		if (temp->buf[j] == '\n')
-			next_line[i++] = '\n';
-		to_free = temp;
-		temp = temp->next;
-		free(to_free->buf);
-		free(to_free);
-	}
-	*head = temp;
-	next_line[i] = '\0';
-	return(next_line);
-}
-
-void	add_node_back(t_buf **head, t_buf *node)
-{
-	t_buf	*temp;
-
-	if (!node)
-		return ;
-	temp = *head;
-	if (!(*head))
-		*head = node;
-	else
-		while ((temp))
 		{
-			if ((temp)->next == NULL)
-			{
-				(temp)->next = node;
-				return ;
-			}
-			temp = temp->next;
+			next_line[i++] = '\n';
+			next_line[i] = '\0';
+			return ;
 		}
+		temp = temp->next;
+	}
+	next_line[i] = '\0';
 }
