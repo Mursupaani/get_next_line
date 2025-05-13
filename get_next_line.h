@@ -33,6 +33,6 @@ char	*get_next_line(int fd);
 t_buf	*new_buf_node(char *buf);
 size_t	ft_strlen(const char *s);
 void	add_node_back(t_buf **head, t_buf *node);
-void	free_list(t_buf *head);
+void	free_list(t_buf **head, t_buf *new_head);
 
 #endif

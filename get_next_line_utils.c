@@ -60,17 +60,27 @@ void	add_node_back(t_buf **head, t_buf *node)
 	}
 }
 
-void	free_list(t_buf *head)
+void	free_list(t_buf **head, t_buf *new_head)
 {
 	t_buf	*temp;
 
-	while (head)
+	if (*head == NULL)
+		return ;
+	while (*head)
 	{
-		temp = head->next;
-		free(head->buf);
-		free(head);
-		head = temp;
+		temp = (*head)->next;
+		free((*head)->buf);
+		free(*head);
+		*head = temp;
 	}
+	*head = NULL;
+	if (!new_head->buf[0])
+	{
+		free(new_head->buf);
+		free(new_head);
+	}
+	else
+		*head = new_head;
 }
 
 size_t	ft_strlen(const char *s)
