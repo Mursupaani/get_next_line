@@ -58,7 +58,6 @@ void	create_buf_list(t_buf **buf_head, int fd)
 		temp = new_buf_node(buffer);
 		add_node_back(buf_head, temp);
 		found_new_line = find_new_line(*buf_head);
-		free(buffer);
 	}
 }
 

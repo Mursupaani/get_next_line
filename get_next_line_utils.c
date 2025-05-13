@@ -15,7 +15,6 @@
 t_buf	*new_buf_node(char *buf)
 {
 	t_buf	*new;
-	int		i;
 
 	new = (t_buf *)malloc(sizeof(t_buf));
 	if (!new)
@@ -23,16 +22,7 @@ t_buf	*new_buf_node(char *buf)
 	if (!buf)
 		new->buf = NULL;
 	else
-	{
-		new->buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-		i = 0;
-		while (buf[i])
-		{
-			new->buf[i] = buf[i];
-			i++;
-		}
-		new->buf[i] = '\0';
-	}
+		new->buf = buf;
 	new->next = NULL;
 	return (new);
 }
@@ -74,7 +64,7 @@ void	free_list(t_buf **head, t_buf *new_head)
 		*head = temp;
 	}
 	*head = NULL;
-	if (!new_head->buf[0])
+	if (new_head && new_head->buf && !new_head->buf[0])
 	{
 		free(new_head->buf);
 		free(new_head);
@@ -105,24 +95,28 @@ t_buf	*store_leftover_to_head(t_buf **head)
 {
 	t_buf	*new_head;
 	t_buf	*last_node;
+	char	*buf_remainder;
 	size_t	i;
+	size_t	j;
 
+	buf_remainder = (char *)malloc(BUFFER_SIZE + 1);
 	last_node = *head;
 	while (last_node->next)
-	{
 		last_node = last_node->next;
-	}
 	i = 0;
+	j = 0;
 	while (last_node->buf[i])
 	{
 		if (last_node->buf[i] == '\n')
 		{
 			i++;
+			while (last_node->buf[i])
+				buf_remainder[j] = last_node->buf[i];
 			break ;
 		}
 		i++;
 	}
-	new_head = new_buf_node(&last_node->buf[i]);
+	new_head = new_buf_node(buf_remainder);
 	free_list(head, new_head);
 	return (new_head);
 }
