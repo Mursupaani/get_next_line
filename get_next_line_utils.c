@@ -6,7 +6,7 @@
 /*   By: anpollan <anpollan@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 15:29:32 by anpollan          #+#    #+#             */
-/*   Updated: 2025/05/07 15:29:40 by anpollan         ###   ########.fr       */
+/*   Updated: 2025/05/13 15:46:41 by anpollan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ t_buf	*new_buf_node(char *buf)
 		new->buf = NULL;
 	else
 	{
-		new->buf = (char *)malloc(sizeof(char) * (ft_strlen(buf) + 1));
+		new->buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 		i = 0;
 		while (buf[i])
 		{
@@ -83,14 +83,46 @@ void	free_list(t_buf **head, t_buf *new_head)
 		*head = new_head;
 }
 
-size_t	ft_strlen(const char *s)
+bool	find_new_line(t_buf *buf_head)
 {
+	int	i;
+
+	while (buf_head)
+	{
+		i = 0;
+		while (buf_head->buf[i])
+		{
+			if (buf_head->buf[i] == '\n')
+				return (true);
+			i++;
+		}
+		buf_head = buf_head->next;
+	}
+	return (false);
+}
+
+t_buf	*store_leftover_to_head(t_buf **head)
+{
+	t_buf	*new_head;
+	t_buf	*last_node;
 	size_t	i;
 
-	i = 0;
-	while (s[i])
+	last_node = *head;
+	while (last_node->next)
 	{
+		last_node = last_node->next;
+	}
+	i = 0;
+	while (last_node->buf[i])
+	{
+		if (last_node->buf[i] == '\n')
+		{
+			i++;
+			break ;
+		}
 		i++;
 	}
-	return (i);
+	new_head = new_buf_node(&last_node->buf[i]);
+	free_list(head, new_head);
+	return (new_head);
 }
