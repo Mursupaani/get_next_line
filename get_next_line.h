@@ -19,18 +19,20 @@
 # include <stdbool.h>
 # include <stddef.h>
 
-#ifndef BUFFER_SIZE
-# define BUFFER_SIZE 1
-#endif
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 10
+# endif
 
 typedef struct s_buf
 {
 	char			*buf;
 	struct s_buf	*next;
-} t_buf;
+}	t_buf;
 
 char	*get_next_line(int fd);
 t_buf	*new_buf_node(char *buf);
 size_t	ft_strlen(const char *s);
+void	add_node_back(t_buf **head, t_buf *node);
+void	free_list(t_buf *head);
 
 #endif

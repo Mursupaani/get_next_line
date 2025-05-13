@@ -33,9 +33,44 @@ t_buf	*new_buf_node(char *buf)
 		}
 		new->buf[i] = '\0';
 	}
-
 	new->next = NULL;
 	return (new);
+}
+
+void	add_node_back(t_buf **head, t_buf *node)
+{
+	t_buf	*temp;
+
+	if (!node)
+		return ;
+	temp = *head;
+	if (!(*head))
+		*head = node;
+	else
+	{
+		while (temp)
+		{
+			if ((temp)->next == NULL)
+			{
+				(temp)->next = node;
+				return ;
+			}
+			temp = temp->next;
+		}
+	}
+}
+
+void	free_list(t_buf *head)
+{
+	t_buf	*temp;
+
+	while (head)
+	{
+		temp = head->next;
+		free(head->buf);
+		free(head);
+		head = temp;
+	}
 }
 
 size_t	ft_strlen(const char *s)

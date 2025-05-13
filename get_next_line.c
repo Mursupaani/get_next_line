@@ -19,37 +19,35 @@
 bool	find_new_line(char *buffer);
 char	*fill_next_line(t_buf **head);
 size_t	get_next_line_len(t_buf *head);
-void	add_node_back(t_buf **head, t_buf *node);
+t_buf	*store_leftover_to_head(t_buf *head);
 
 char	*get_next_line(int fd)
 {
 	static t_buf	*buf_head;
 	char			buffer[BUFFER_SIZE + 1];
 	size_t			bytes_read;
-	char			*line;
 	t_buf			*temp;
 
-	if (fd == -1)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
+	if (buf_head)
+	{
+		if (find_new_line(buf_head->buf))
+			return (fill_next_line(&buf_head));
+	}
 	bytes_read = 1;
 	while (bytes_read)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (!bytes_read)
-			break ;
 		buffer[bytes_read] = '\0';
 		temp = new_buf_node(buffer);
 		add_node_back(&buf_head, temp);
 		if (find_new_line(temp->buf))
-		{
-			line = fill_next_line(&buf_head);
-			return (line);
-		}
+			return (fill_next_line(&buf_head));
 	}
-	free(buf_head);
+	free_list(buf_head);
 	return (NULL);
 }
-
 
 bool	find_new_line(char *buffer)
 {
@@ -76,12 +74,13 @@ size_t	get_next_line_len(t_buf *head)
 		while (temp->buf[i] && temp->buf[i] != '\n')
 		{
 			next_line_len++;
+			if (temp->buf[i] == '\n')
+				next_line_len++;
 			i++;
 		}
 		temp = temp->next;
 	}
-	next_line_len++;
-	return(next_line_len);
+	return (next_line_len);
 }
 
 char	*fill_next_line(t_buf **head)
@@ -91,7 +90,7 @@ char	*fill_next_line(t_buf **head)
 	t_buf	*to_free;
 	size_t	i;
 	size_t	j;
-	
+
 	next_line = (char *)malloc(sizeof(char) * (get_next_line_len(*head) + 1));
 	if (!next_line)
 		return (NULL);
@@ -103,34 +102,36 @@ char	*fill_next_line(t_buf **head)
 		while (temp->buf[j] && temp->buf[j] != '\n')
 			next_line[i++] = temp->buf[j++];
 		if (temp->buf[j] == '\n')
+		{
 			next_line[i++] = '\n';
+			*head = store_leftover_to_head(temp);
+		}
 		to_free = temp;
 		temp = temp->next;
 		free(to_free->buf);
 		free(to_free);
 	}
-	*head = temp;
 	next_line[i] = '\0';
-	return(next_line);
+	return (next_line);
 }
 
-void	add_node_back(t_buf **head, t_buf *node)
+t_buf	*store_leftover_to_head(t_buf *head)
 {
 	t_buf	*temp;
+	t_buf	*new_head;
+	size_t	i;
 
-	if (!node)
-		return ;
-	temp = *head;
-	if (!(*head))
-		*head = node;
-	else
-		while ((temp))
+	temp = head;
+	i = 0;
+	while (temp->buf[i])
+	{
+		if (temp->buf[i] == '\n')
 		{
-			if ((temp)->next == NULL)
-			{
-				(temp)->next = node;
-				return ;
-			}
-			temp = temp->next;
+			i++;
+			break ;
 		}
+		i++;
+	}
+	new_head = new_buf_node(&(temp->buf[i]));
+	return (new_head);
 }
