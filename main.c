@@ -7,7 +7,7 @@ int	main()
 	int		fd;
 	char	*line;
 
-	fd = open("test2.txt", O_RDONLY);
+	fd = open("test.txt", O_RDONLY);
 	if (fd == -1)
 	{
 		printf("File not found\n");

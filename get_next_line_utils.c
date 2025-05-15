@@ -100,6 +100,9 @@ t_buf	*store_leftover_to_head(t_buf **head)
 	size_t	j;
 
 	buf_remainder = (char *)malloc(BUFFER_SIZE + 1);
+	if (!buf_remainder)
+		return (NULL);
+	buf_remainder[0] = '\0';
 	last_node = *head;
 	while (last_node->next)
 		last_node = last_node->next;
@@ -111,7 +114,10 @@ t_buf	*store_leftover_to_head(t_buf **head)
 		{
 			i++;
 			while (last_node->buf[i])
-				buf_remainder[j] = last_node->buf[i];
+			{
+				buf_remainder[j++] = last_node->buf[i++];
+				buf_remainder[j] = '\0';
+			}
 			break ;
 		}
 		i++;
