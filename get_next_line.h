@@ -29,9 +29,10 @@ typedef struct s_buf
 
 char	*get_next_line(int fd);
 t_buf	*new_buf_node(char *buf);
-void	add_node_back(t_buf **head, t_buf *node);
 void	free_list(t_buf **head, t_buf *new_head);
 bool	find_new_line(t_buf *buf_head);
-t_buf	*store_leftover_to_head(t_buf **head);
+void	store_leftover_to_head(t_buf **head);
+void	add_node_back(t_buf **head, char *buf);
+void	copy_remainder_to_new_head(t_buf *head, char *buf_remainder);
 
 #endif

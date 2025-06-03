@@ -12,27 +12,16 @@
 
 #include "get_next_line.h"
 
-t_buf	*new_buf_node(char *buf)
-{
-	t_buf	*new;
-
-	new = (t_buf *)malloc(sizeof(t_buf));
-	if (!new)
-		return (NULL);
-	if (!buf)
-		new->buf = NULL;
-	else
-		new->buf = buf;
-	new->next = NULL;
-	return (new);
-}
-
-void	add_node_back(t_buf **head, t_buf *node)
+void	add_node_back(t_buf **head, char *buf)
 {
 	t_buf	*temp;
+	t_buf	*node;
 
+	node = (t_buf *)malloc(sizeof(t_buf));
 	if (!node)
 		return ;
+	node->buf = buf;
+	node->next = NULL;
 	temp = *head;
 	if (!(*head))
 		*head = node;
@@ -43,7 +32,7 @@ void	add_node_back(t_buf **head, t_buf *node)
 			if ((temp)->next == NULL)
 			{
 				(temp)->next = node;
-				return ;
+				break ;
 			}
 			temp = temp->next;
 		}
@@ -91,28 +80,39 @@ bool	find_new_line(t_buf *buf_head)
 	return (false);
 }
 
-t_buf	*store_leftover_to_head(t_buf **head)
+void	store_leftover_to_head(t_buf **head)
 {
 	t_buf	*new_head;
-	t_buf	*last_node;
 	char	*buf_remainder;
-	size_t	i;
-	size_t	j;
 
 	buf_remainder = (char *)malloc(BUFFER_SIZE + 1);
 	if (!buf_remainder)
-		return (NULL);
+		return ;
 	buf_remainder[0] = '\0';
-	last_node = *head;
+	copy_remainder_to_new_head(*head, buf_remainder);
+	new_head = (t_buf *)malloc(sizeof(t_buf));
+	if (!new_head)
+		return ;
+	new_head->buf = buf_remainder;
+	new_head->next = NULL;
+	free_list(head, new_head);
+}
+
+void	copy_remainder_to_new_head(t_buf *head, char *buf_remainder)
+{
+	t_buf	*last_node;
+	size_t	i;
+	size_t	j;
+
+	last_node = head;
 	while (last_node->next)
 		last_node = last_node->next;
 	i = 0;
 	j = 0;
 	while (last_node->buf[i])
 	{
-		if (last_node->buf[i] == '\n')
+		if (last_node->buf[i++] == '\n')
 		{
-			i++;
 			while (last_node->buf[i])
 			{
 				buf_remainder[j++] = last_node->buf[i++];
@@ -120,9 +120,5 @@ t_buf	*store_leftover_to_head(t_buf **head)
 			}
 			break ;
 		}
-		i++;
 	}
-	new_head = new_buf_node(buf_remainder);
-	free_list(head, new_head);
-	return (new_head);
 }

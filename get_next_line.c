@@ -38,7 +38,6 @@ char	*get_next_line(int fd)
 void	create_buf_list(t_buf **buf_head, int fd)
 {
 	char	*buffer;
-	t_buf	*temp;
 	ssize_t	bytes_read;
 	bool	found_new_line;
 
@@ -48,6 +47,7 @@ void	create_buf_list(t_buf **buf_head, int fd)
 		buffer = (char *)malloc(BUFFER_SIZE + 1);
 		if (!buffer)
 			return ;
+		buffer[0] = '\0';
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (!bytes_read)
 		{
@@ -55,8 +55,7 @@ void	create_buf_list(t_buf **buf_head, int fd)
 			return ;
 		}
 		buffer[bytes_read] = '\0';
-		temp = new_buf_node(buffer);
-		add_node_back(buf_head, temp);
+		add_node_back(buf_head, buffer);
 		found_new_line = find_new_line(*buf_head);
 	}
 }
@@ -108,7 +107,7 @@ void	copy_line(t_buf *head, char *next_line)
 	size_t	i;
 	size_t	j;
 
-	if (!next_line)
+	if (!next_line || !head)
 		return ;
 	temp = head;
 	i = 0;

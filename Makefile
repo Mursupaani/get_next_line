@@ -14,7 +14,7 @@ NAME		= a.out
 SRCS		= get_next_line.c get_next_line_utils.c main.c
 OBJS		= $(SRCS:%.c=%.o)
 CC			= cc
-C_FLAGS		= -Wall -Wextra -Werror
+C_FLAGS		= -Wall -Wextra -Werror -g
 
 all: $(NAME) clean
 
